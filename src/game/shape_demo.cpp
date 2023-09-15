@@ -24,12 +24,27 @@ void ShapeDemo::init(){
     
 
     customTextureShader_ = 
-        ShaderManager::getInstance()->loadAssetShader("custom_texture_shader2",
+        ShaderManager::getInstance()->loadAssetShader("custom_video_shader",
                     "shader/sprite_batch_vertex.glsl", 
                     "shader/custom_texture_shader.glsl");
 
+    customTextureShader2_ = 
+         ShaderManager::getInstance()->loadAssetShader("custom_video_shader2",
+                    "shader/sprite_batch_vertex.glsl", 
+                    "shader/custom_texture_shader2.glsl");
+    
+    customTextureShader3_ = 
+         ShaderManager::getInstance()->loadAssetShader("custom_video_shader3",
+                    "shader/sprite_batch_vertex.glsl", 
+                    "shader/custom_texture_shader3.glsl");
+
+    customTextureShader4_ = 
+        ShaderManager::getInstance()->loadAssetShader("custom_video_shader4",
+                    "shader/sprite_batch_vertex.glsl", 
+                    "shader/custom_texture_shader4.glsl");
+    
     std::cout << "video prepare" << std::endl;
-    videoDemux_ = std::make_shared<VideoDemux>("e:/assets/mv/yangzi_ai.mp4");
+    videoDemux_ = std::make_shared<VideoDemux>("e:/assets/mv/mao.mp4");
     if(videoDemux_->prepare() < 0){
         Logi("video" , "video prepare file failed!");
         return;
@@ -358,11 +373,11 @@ VideoInfo VideoDemux::getVideoInfo(){
 }
 
 bool VideoDemux::decodeVideNextFrame(){
-    std::cout << "decodeVideoNextFrame" << std::endl;
+    // std::cout << "decodeVideoNextFrame" << std::endl;
 
     int readFrameRet = -1;
     while((readFrameRet = av_read_frame(formatContext, packet)) >= 0){
-        std::cout << "readFrameRet : " << readFrameRet << std::endl;
+        // std::cout << "readFrameRet : " << readFrameRet << std::endl;
         if (packet->stream_index == videoStreamIndex){
              std::cout << "avcodec_send_packet " << std::endl;
             int sendPacketRet = avcodec_send_packet(codecCtx, packet);
@@ -389,7 +404,7 @@ bool VideoDemux::decodeVideNextFrame(){
                     //     std::cout<< pixelBuf[i] << std::endl;
                     // }
 
-                    std::cout << "read video frame success!!!" << std::endl;
+                    // std::cout << "read video frame success!!!" << std::endl;
                     av_frame_unref(frame);
                     return true;
                 }
@@ -444,10 +459,10 @@ void ShapeDemo::renderVideo(){
 
     // render 
     Rect rect;
-    rect.height = viewHeight_;
-    rect.width = ratio * viewHeight_;
+    rect.height = viewHeight_ / 2.0f;
+    rect.width = ratio * rect.height;
    
-    rect.left = viewWidth_ / 2.0f - rect.width / 2.0f;
+    rect.left = 0.0f;
     rect.top = viewHeight_;
     renderEngine_->renderTextureShader(customTextureShader_ , 
         rect , 
@@ -465,6 +480,79 @@ void ShapeDemo::renderVideo(){
             glActiveTexture(GL_TEXTURE2);
             glBindTexture(GL_TEXTURE_2D , videoTextureV_->getTextureId());
         });
+    TextPaint textPaint;
+    textPaint.textColor = glm::vec4(0.0f , 0.0f ,0.0f ,1.0f);
+    textPaint.setTextSize(64.0f);
+    renderEngine_->renderText(L"原始图像" , rect.left , rect.top - 60.0f , textPaint);
+
+    Rect rect2;
+    rect2.left = rect.getRight();
+    rect2.top = viewHeight_;
+    rect2.width = rect.width;
+    rect2.height = rect.height;
+    renderEngine_->renderTextureShader(customTextureShader2_ , 
+        rect2 , 
+        videoTextureY_->getTextureId() , [this](){
+            customTextureShader2_.setUniformInt("texY" , 0);
+            customTextureShader2_.setUniformInt("texU" , 1);
+            customTextureShader2_.setUniformInt("texV" , 2);
+
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D , videoTextureY_->getTextureId());
+            
+            glActiveTexture(GL_TEXTURE1);
+            glBindTexture(GL_TEXTURE_2D , videoTextureU_->getTextureId());
+
+            glActiveTexture(GL_TEXTURE2);
+            glBindTexture(GL_TEXTURE_2D , videoTextureV_->getTextureId());
+        });
+    renderEngine_->renderText(L"图像2" , rect2.left , rect2.top - 60.0f , textPaint);
+
+    Rect rect3;
+    rect3.left = rect.left;
+    rect3.top = viewHeight_ / 2.0f;
+    rect3.width = rect.width;
+    rect3.height = rect.height;
+    renderEngine_->renderTextureShader(customTextureShader3_ , 
+        rect3 , 
+        videoTextureY_->getTextureId() , [this](){
+            customTextureShader3_.setUniformInt("texY" , 0);
+            customTextureShader3_.setUniformInt("texU" , 1);
+            customTextureShader3_.setUniformInt("texV" , 2);
+
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D , videoTextureY_->getTextureId());
+            
+            glActiveTexture(GL_TEXTURE1);
+            glBindTexture(GL_TEXTURE_2D , videoTextureU_->getTextureId());
+
+            glActiveTexture(GL_TEXTURE2);
+            glBindTexture(GL_TEXTURE_2D , videoTextureV_->getTextureId());
+        });
+    renderEngine_->renderText(L"图像3" , rect3.left , rect3.top - 60.0f , textPaint);
+
+    Rect rect4;
+    rect4.left = rect2.left;
+    rect4.top = viewHeight_ / 2.0f;
+    rect4.width = rect.width;
+    rect4.height = rect.height;
+    renderEngine_->renderTextureShader(customTextureShader4_ , 
+        rect4 , 
+        videoTextureY_->getTextureId() , [this](){
+            customTextureShader3_.setUniformInt("texY" , 0);
+            customTextureShader3_.setUniformInt("texU" , 1);
+            customTextureShader3_.setUniformInt("texV" , 2);
+
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D , videoTextureY_->getTextureId());
+            
+            glActiveTexture(GL_TEXTURE1);
+            glBindTexture(GL_TEXTURE_2D , videoTextureU_->getTextureId());
+
+            glActiveTexture(GL_TEXTURE2);
+            glBindTexture(GL_TEXTURE_2D , videoTextureV_->getTextureId());
+        });
+    renderEngine_->renderText(L"图像4" , rect4.left , rect4.top - 60.0f , textPaint);
 }
 
 VideoDemux::~VideoDemux(){

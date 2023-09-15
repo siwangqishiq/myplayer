@@ -98,6 +98,10 @@ private:
     std::shared_ptr<RenderEngine> renderEngine_;
 
     Shader customTextureShader_;
+    Shader customTextureShader2_;
+    Shader customTextureShader3_;
+    Shader customTextureShader4_;
+    
     std::shared_ptr<TextureImage> image_;
     std::shared_ptr<TextureImage> videoTextureY_;
     std::shared_ptr<TextureImage> videoTextureU_;
